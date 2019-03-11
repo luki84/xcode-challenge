@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Controller
@@ -21,7 +22,7 @@ public class SortingController {
     SortingService sortingService;
 
     @PostMapping("/sort-command")
-    public ResponseEntity<NumbersResponseDto> sort (@RequestBody Numbers numbers) {
+    public ResponseEntity<NumbersResponseDto> sort (@RequestBody @Valid Numbers numbers) {
         NumbersResponseDto integers = sortingService.sortNumbers(
                 numbers.getNumbers(),
                 numbers.getOrder()
