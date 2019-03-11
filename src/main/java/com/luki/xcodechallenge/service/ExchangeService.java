@@ -3,10 +3,12 @@ package com.luki.xcodechallenge.service;
 import com.luki.xcodechallenge.client.NbpClient;
 import com.luki.xcodechallenge.dao.Currency;
 import com.luki.xcodechallenge.dao.CurrencyResponseDto;
+import com.luki.xcodechallenge.dao.Rate;
+import com.luki.xcodechallenge.exception.XCodeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
+import java.util.Optional;
 
 @Service
 public class ExchangeService {
@@ -18,14 +20,11 @@ public class ExchangeService {
     }
 
     public CurrencyResponseDto getMid(Currency.Code code) {
-        return nbpClient.getMid(code).getRates().stream()
-                .findFirst()
-                .map(rate -> new CurrencyResponseDto(rate.getMid().toPlainString()))
-                .orElse(new CurrencyResponseDto("123332")); //TODO: throw an exception here
-    }
+        Optional<Rate> rate = nbpClient.getMid(code).getRates().stream().findFirst();
 
-    private CurrencyResponseDto buildCurrencyResponseDTO(BigDecimal mid) {
-        return new CurrencyResponseDto(mid.toPlainString());
+        if (rate.isPresent())
+            return new CurrencyResponseDto(rate.get().getMid().toPlainString());
+        else
+            throw new XCodeException(XCodeException.Code.INVALID_REQUEST);
     }
-
 }
