@@ -5,6 +5,7 @@ import com.luki.xcodechallenge.dto.NumbersResponseDto;
 import com.luki.xcodechallenge.exception.XCodeException;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,10 +14,9 @@ import java.util.stream.Collectors;
 public class SortingService {
 
     public NumbersResponseDto sortNumbers (List<? extends Number> numbers, NumbersQuery.Order order) {
-        if (numbers == null) return null;
+        if (numbers == null) return new NumbersResponseDto(Collections.emptyList());
 
         int multiplier = (order == NumbersQuery.Order.DESC) ? -1 : 1;
-
         List<? extends Number> sortedNumbers = numbers.stream()
                 .sorted((number1, number2) -> {
                     Double doubleValue1 = getDoubleValue(number1);
