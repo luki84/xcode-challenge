@@ -1,7 +1,7 @@
 package com.luki.xcodechallenge.service;
 
-import com.luki.xcodechallenge.dao.NumbersDto;
-import com.luki.xcodechallenge.dao.NumbersResponseDto;
+import com.luki.xcodechallenge.dto.NumbersQuery;
+import com.luki.xcodechallenge.dto.NumbersResponseDto;
 import com.luki.xcodechallenge.exception.XCodeException;
 import org.springframework.stereotype.Service;
 
@@ -12,10 +12,10 @@ import java.util.stream.Collectors;
 @Service
 public class SortingService {
 
-    public NumbersResponseDto sortNumbers (List<? extends Number> numbers, NumbersDto.Order order) {
+    public NumbersResponseDto sortNumbers (List<? extends Number> numbers, NumbersQuery.Order order) {
         if (numbers == null) return null;
 
-        int multiplier = (order == NumbersDto.Order.DESC) ? -1 : 1;
+        int multiplier = (order == NumbersQuery.Order.DESC) ? -1 : 1;
 
         List<? extends Number> sortedNumbers = numbers.stream()
                 .sorted((number1, number2) -> {

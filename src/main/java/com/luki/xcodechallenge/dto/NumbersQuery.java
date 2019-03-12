@@ -1,4 +1,4 @@
-package com.luki.xcodechallenge.dao;
+package com.luki.xcodechallenge.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class NumbersDto {
+public class NumbersQuery {
     List<? extends Number> numbers;
     @NotNull
     Order order;

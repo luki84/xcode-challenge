@@ -1,7 +1,7 @@
 package com.luki.xcodechallenge.controller;
 
-import com.luki.xcodechallenge.dao.CurrencyDto;
-import com.luki.xcodechallenge.dao.CurrencyResponseDto;
+import com.luki.xcodechallenge.dto.CurrencyQuery;
+import com.luki.xcodechallenge.dto.CurrencyResponseDto;
 import com.luki.xcodechallenge.service.ExchangeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,8 +17,8 @@ public class CurrenciesController {
     ExchangeService exchangeService;
 
     @PostMapping("/get-current-currency-value-command")
-    public ResponseEntity<CurrencyResponseDto> getMid(@RequestBody CurrencyDto currencyDto) {
-        CurrencyResponseDto value = exchangeService.getMid (currencyDto.getCurrency());
+    public ResponseEntity<CurrencyResponseDto> getMid(@RequestBody CurrencyQuery currencyQuery) {
+        CurrencyResponseDto value = exchangeService.getMid (currencyQuery.getCurrency());
         return new ResponseEntity<>(value, HttpStatus.OK);
     }
 }

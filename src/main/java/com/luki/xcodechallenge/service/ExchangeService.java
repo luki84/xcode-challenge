@@ -1,9 +1,9 @@
 package com.luki.xcodechallenge.service;
 
 import com.luki.xcodechallenge.client.NbpClient;
-import com.luki.xcodechallenge.dao.Currency;
-import com.luki.xcodechallenge.dao.CurrencyResponseDto;
-import com.luki.xcodechallenge.dao.Rate;
+import com.luki.xcodechallenge.dto.Currency;
+import com.luki.xcodechallenge.dto.CurrencyResponseDto;
+import com.luki.xcodechallenge.dto.Rate;
 import com.luki.xcodechallenge.exception.XCodeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

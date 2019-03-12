@@ -1,7 +1,7 @@
 package com.luki.xcodechallenge.controller;
 
-import com.luki.xcodechallenge.dao.NumbersDto;
-import com.luki.xcodechallenge.dao.NumbersResponseDto;
+import com.luki.xcodechallenge.dto.NumbersQuery;
+import com.luki.xcodechallenge.dto.NumbersResponseDto;
 import com.luki.xcodechallenge.service.SortingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,10 +21,10 @@ public class SortingController {
     SortingService sortingService;
 
     @PostMapping("/sort-command")
-    public ResponseEntity<NumbersResponseDto> sort (@RequestBody @Valid NumbersDto numbersDto) {
+    public ResponseEntity<NumbersResponseDto> sort (@RequestBody @Valid NumbersQuery numbersQuery) {
         NumbersResponseDto sortedNumbers = sortingService.sortNumbers(
-                numbersDto.getNumbers(),
-                numbersDto.getOrder()
+                numbersQuery.getNumbers(),
+                numbersQuery.getOrder()
         );
         return new ResponseEntity<>(sortedNumbers, HttpStatus.OK);
     }

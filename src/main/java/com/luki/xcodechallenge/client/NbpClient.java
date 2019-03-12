@@ -1,7 +1,7 @@
 package com.luki.xcodechallenge.client;
 
 import com.luki.xcodechallenge.configuration.NbpClientConfiguration;
-import com.luki.xcodechallenge.dao.Currency;
+import com.luki.xcodechallenge.dto.Currency;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Component;
 

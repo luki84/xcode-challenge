@@ -1,4 +1,4 @@
-package com.luki.xcodechallenge.dao;
+package com.luki.xcodechallenge.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
