@@ -8,5 +8,5 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class NumbersResponseDto {
-    List<Integer> numbers;
+    List<? extends Number> numbers;
 }

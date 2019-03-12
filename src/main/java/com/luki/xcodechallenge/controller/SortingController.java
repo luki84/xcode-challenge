@@ -1,6 +1,6 @@
 package com.luki.xcodechallenge.controller;
 
-import com.luki.xcodechallenge.dao.Numbers;
+import com.luki.xcodechallenge.dao.NumbersDto;
 import com.luki.xcodechallenge.dao.NumbersResponseDto;
 import com.luki.xcodechallenge.service.SortingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @Controller
 @RequestMapping("/numbers")
@@ -22,11 +21,11 @@ public class SortingController {
     SortingService sortingService;
 
     @PostMapping("/sort-command")
-    public ResponseEntity<NumbersResponseDto> sort (@RequestBody @Valid Numbers numbers) {
-        NumbersResponseDto integers = sortingService.sortNumbers(
-                numbers.getNumbers(),
-                numbers.getOrder()
+    public ResponseEntity<NumbersResponseDto> sort (@RequestBody @Valid NumbersDto numbersDto) {
+        NumbersResponseDto sortedNumbers = sortingService.sortNumbers(
+                numbersDto.getNumbers(),
+                numbersDto.getOrder()
         );
-        return new ResponseEntity<NumbersResponseDto>(integers, HttpStatus.OK);
+        return new ResponseEntity<>(sortedNumbers, HttpStatus.OK);
     }
 }
