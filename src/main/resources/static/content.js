@@ -23,16 +23,19 @@ $.widget("xCode.numbersSortingForm", {
         this.orderGroup = $('<div>').addClass('form-group');
         this.orderLabel = $('<label>')
             .text('Kolejność: ');
-        this.orderASC = $('<div>').radioOption({
-            id: 'ascOrder',
-            value: 'ASC',
-            checked: true,
-            label: 'rosnąca'
-        });
-        this.orderDESC = $('<div>').radioOption({
-            id: 'descOrder',
-            value: 'DESC',
-            label: 'malejąca'
+        this.rog = $('<div>').radioOptionGroup({
+            radioProps: [{
+                    id: 'ascOrder',
+                    value: 'ASC',
+                    checked: true,
+                    label: 'rosnąca'
+                },
+                {
+                    id: 'descOrder',
+                    value: 'DESC',
+                    checked: false,
+                    label: 'malejąca'
+                }]
         });
 
         this.submitBtn = $('<button>')
@@ -41,11 +44,30 @@ $.widget("xCode.numbersSortingForm", {
                 .attr('type', 'submit');
 
         this.numbersGroup.append(this.numbersLabel, this.numbersInput, this.numbersInputDescription);
-        this.orderGroup.append(this.orderLabel, this.orderASC, this.orderDESC);
+        this.orderGroup.append(this.orderLabel,  this.rog);
         this.numbersInputForm.append(this.numbersGroup, this.orderGroup, this.submitBtn);
         this.jumbotron.append(this.numbersInputForm);
         this.mainContainer.append(this.paragraph, this.jumbotron);
         $(this.element).append(this.mainContainer);
+    }
+});
+
+$.widget("xCode.radioOptionGroup", {
+    options: {
+        radioProps: []
+    },
+
+    _create: function() {
+        for (let prop of this.options.radioProps){
+            const radio = $('<div>').radioOption({
+                id: prop.id,
+                value: prop.value,
+                checked: prop.checked,
+                label: prop.label
+            });
+
+            $(this.element).append(radio);
+        }
     }
 });
 
@@ -79,3 +101,46 @@ $.widget("xCode.radioOption", {
 });
 
 
+function doPost(url, data, onSuccess, onError) {
+    var self = this;
+    $.ajax({
+        type: 'POST',
+        contentType: 'application/json; charset=utf-8',
+        url: url,
+        dataType: 'json',
+        data: JSON.stringify(data),
+        success: function (data) {
+            if (onSuccess)
+                onSuccess.call(null, data);
+        },
+        error: function (xhr, status, error) {
+            if (onError)
+                onError.call(null, xhr, status, error);
+        }
+    });
+}
+
+function doGet(url, onSuccess, onError) {
+    var self = this;
+    return $.ajax({
+        type: 'GET',
+        url: url,
+        success: function (data) {
+            if (onSuccess)
+                onSuccess.call(null, data);
+        },
+        error: function (xhr, status, error) {
+            if (onError)
+                onError.call(null, xhr, status, error);
+        }
+    });
+}
+
+function sortNumpers(data) {
+    doPost("http://" + window.location.host + '/numbersQuery/sort-command', data, (data) => {
+        $('#sortingResult').css('display', 'block');
+        $('#sortingResultNumbers').text(data.numbersQuery.map(number => ' ' + number));
+    }, () => {
+        alert('wrong')
+    })
+}
