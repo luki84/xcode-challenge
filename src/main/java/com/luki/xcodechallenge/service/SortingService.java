@@ -2,7 +2,7 @@ package com.luki.xcodechallenge.service;
 
 import com.luki.xcodechallenge.dto.NumbersQuery;
 import com.luki.xcodechallenge.dto.NumbersResponseDto;
-import com.luki.xcodechallenge.exception.XCodeException;
+import com.luki.xcodechallenge.exception.BadSortingData;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -34,7 +34,7 @@ public class SortingService {
             doubleValue = number.doubleValue();
         else if (number instanceof Double)
             doubleValue = (Double) number;
-        else throw new XCodeException(XCodeException.Code.INVALID_REQUEST);
+        else throw new BadSortingData("Bad input data");
         return doubleValue;
     }
 }

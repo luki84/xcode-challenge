@@ -1,10 +1,9 @@
 $.widget("xCode.numbersSortingForm", {
     _create: function() {
-        const self = this;
         this.mainContainer = $('<div>').addClass('container');
         this.paragraph = $('<p>').addClass('pt-xl-5 pl-xl-4');
         this.jumbotron = $('<div>').addClass('jumbotron');
-        this.numbersInputForm = $('<form>');
+        this.numbersInputForm = $('<div>');
 
         this.numbersGroup = $('<div>').numbersGroup({
             label: 'Liczby do posortowania: ',
@@ -14,44 +13,72 @@ $.widget("xCode.numbersSortingForm", {
         this.orderRadiosGroup = $('<div>').radioOptionGroup({
             label: 'Kolejność:',
             radioProps: [{
-                id: 'ascOrder',
                 value: 'ASC',
                 checked: true,
                 label: 'rosnąca'
             }, {
-                id: 'descOrder',
                 value: 'DESC',
                 label: 'malejąca'
             }]
+        });
+        this.window = $('<div>').modalWindow({
+            message: '',
+            buttonText: 'ok'
         });
 
         this.submitBtn = $('<button>')
             .addClass('btn btn-primary')
             .text('Sortuj')
-            // .attr('type', 'submit')
-            .click(() => {
-                const userNumbers = self.numbersGroup.numbersGroup('getUserInput');
-                const numbersToBeSorted = userNumbers.split(",")
-                    .map(value => Number(value.trim()));
-
-                const data = {
-                    numbers: numbersToBeSorted,
-                    order: self.orderRadiosGroup.radioOptionGroup('getCheckedValue')
-                };
-                doPost("http://" + window.location.host + '/numbersQuery/sort-command', data, (data) => {
-                    alert(data);
-                    // $('#sortingResult').css('display', 'block');
-                    // $('#sortingResultNumbers').text(data.numbersQuery.map(number => ' ' + number));
-                }, () => {
-                    alert('wrong')
-                })
-
-            });
+            .attr('data-toggle', 'modal')
+            .attr('data-target', '#resultModal')
+            .click(this.onSubmitBtnClicked.bind(this));
 
         this.numbersInputForm.append(this.numbersGroup, this.orderRadiosGroup, this.submitBtn);
         this.jumbotron.append(this.numbersInputForm);
-        this.mainContainer.append(this.paragraph, this.jumbotron);
+        this.mainContainer.append(this.paragraph, this.jumbotron, this.window);
         $(this.element).append(this.mainContainer);
+    },
+
+    onSubmitBtnClicked: function(){
+        const data = {
+            numbers: this.extractNumbersFromText(this.numbersGroup.numbersGroup('getUserInput')),
+            order: this.orderRadiosGroup.radioOptionGroup('getCheckedValue')
+        };
+
+        doPost("http://" + window.location.host + '/numbers/sort-command', data, (data) => {
+            if (data.numbers.length > 0)
+                this.window.modalWindow('setText', 'Wynik sortowania', this.formatResultTable(data.numbers));
+            else this.window.modalWindow('setText', 'Nie wprowadzono danych do posortowania');
+
+            $(this.element).append(window);
+        }, (xhr, status, error) => {
+
+
+            this.window.modalWindow('setText', this.getErrorTypeByStatusCode(xhr.status), error.Message);
+        })
+    },
+
+    extractNumbersFromText: function(text) {
+        return text
+            .trim()
+            .split(",")
+            .filter(value => {
+                if (value.trim().length === 0) return false;
+                else return true;
+                // return value.match(`[-+]?[0-9]*\.?[0-9]*`).length > 0;
+            })
+            .map(value => Number(value.trim()));
+    },
+
+    formatResultTable: function (resultTable) {
+        return resultTable.map(number => ' ' + number);
+    },
+
+    getErrorTypeByStatusCode: function (statusCode) {
+        switch(statusCode){
+            case 400: return "Nieprawidłowe zapytanie";
+            case 500: return "Wewnętrzny błąd serwera";
+        }
     }
 });
 
@@ -65,17 +92,12 @@ $.widget("xCode.numbersGroup", {
     _create: function() {
         this.element.addClass('form-group');
         this.label = $('<label>')
-            .text(this.options.label)
-            .attr('for', 'numbersToBeSorted');
+            .text(this.options.label);
         this.numbersInput = $('<input>')
             .addClass('form-control')
-            .attr('id', 'numbersToBeSorted')
-            .attr('name', 'numbersQuery')
-            .attr('aria-describedby', 'numbersHelp')
             .attr('placeholder', this.options.placeholder);
         this.numbersInputDescription = $('<small>')
             .addClass('form-text text-muted')
-            .attr('id', 'numbersHelp')
             .text(this.options.description);
         this.element.append(this.label, this.numbersInput, this.numbersInputDescription);
     },
@@ -93,16 +115,16 @@ $.widget("xCode.radioOptionGroup", {
 
     _create: function() {
         let self = this;
-        let checkedValue = null;
+        this.checkedValue = null;
         this.element.addClass('form-group');
         if (this.options.label) {
             this.label = $('<label>').text(this.options.label);
             this.element.append(this.label);
         }
         for (let prop of this.options.radioProps){
-            if (prop.checked == null) checkedValue = prop.value;
+            if (prop.checked != null) this.checkedValue = prop.value;
             const radio = $('<div>').radioOption({
-                id: prop.id,
+                id: prop.value,
                 value: prop.value,
                 checked: (prop.checked == null) ? false : prop.checked,
                 label: prop.label
@@ -143,6 +165,67 @@ $.widget("xCode.radioOption", {
     }
 });
 
+$.widget("xCode.modalWindow", {
+    options: {
+        message: null,
+        buttonText: null,
+        headerMessage: null
+    },
+
+    _create: function() {
+        this.element
+            .addClass('modal fade')
+            .attr('id', 'resultModal')
+            .attr('tabindex', '-1')
+            .attr('aria-labelledby', 'exampleModalLabel')
+            .attr('aria-hidden', 'true')
+            .attr('role', 'dialog');
+        this.dialog = $('<div>')
+            .addClass('modal-dialog')
+            .attr('role', 'document');
+        this.modalContent = $('<div>')
+            .addClass('modal-content');
+        this.modalHeader = $('<div>')
+            .addClass('modal-header');
+        this.title = $('<h5>')
+            .addClass('modal-title')
+            .text(this.options.headerMessage);
+        this.closeButton = $('<button>')
+            .addClass('close')
+            .attr('data-dismiss', 'modal')
+            .attr('type', 'button')
+            .attr('aria-label', 'Close');
+        this.modalHeader.append(this.title, this.closeButton);
+
+        this.modalBody = $('<div>')
+            .addClass('modal-body');
+        this.message = $('<div>')
+            .text(this.options.message);
+        this.modalBody.append(this.message);
+
+        this.modalFooter = $('<div>')
+            .addClass('modal-footer');
+        this.button = $('<button>')
+            .addClass('btn btn-secondary')
+            .attr('data-dismiss', 'modal')
+            .attr('type', 'button')
+            .text(this.options.buttonText);
+        this.modalFooter.append(this.button);
+
+        this.modalContent.append(this.modalHeader, this.modalBody, this.modalFooter);
+        this.dialog.append(this.modalContent);
+        this.element.append(this.dialog);
+    },
+
+    setText: function(headerMessage, bodyMessage) {
+        //header
+        this.options.headerMessage = headerMessage;
+        this.title.text(headerMessage);
+        //body
+        this.options.message = bodyMessage;
+        this.message.text(bodyMessage);
+    }
+});
 
 function doPost(url, data, onSuccess, onError) {
     var self = this;
@@ -161,29 +244,4 @@ function doPost(url, data, onSuccess, onError) {
                 onError.call(null, xhr, status, error);
         }
     });
-}
-
-function doGet(url, onSuccess, onError) {
-    var self = this;
-    return $.ajax({
-        type: 'GET',
-        url: url,
-        success: function (data) {
-            if (onSuccess)
-                onSuccess.call(null, data);
-        },
-        error: function (xhr, status, error) {
-            if (onError)
-                onError.call(null, xhr, status, error);
-        }
-    });
-}
-
-function sortNumpers(data) {
-    doPost("http://" + window.location.host + '/numbersQuery/sort-command', data, (data) => {
-        $('#sortingResult').css('display', 'block');
-        $('#sortingResultNumbers').text(data.numbersQuery.map(number => ' ' + number));
-    }, () => {
-        alert('wrong')
-    })
 }
