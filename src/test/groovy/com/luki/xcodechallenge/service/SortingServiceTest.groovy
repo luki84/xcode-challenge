@@ -13,7 +13,7 @@ class SortingServiceTest extends Specification {
                 SortingServiceDataMocks.sortingDataASC.order
         )
         then:
-        response == [1, 3, 5, 7, 9]
+        response.numbers == [1, 3, 5, 7, 9]
     }
 
     def "should sort numbers in descending order"() {
@@ -23,16 +23,16 @@ class SortingServiceTest extends Specification {
                 SortingServiceDataMocks.sortingDataDESC.order
         )
         then:
-        response == [9, 7, 5, 3, 1]
+        response.numbers == [9, 7, 5, 3, 1]
     }
 
-    def "should allow "() {
+    def "should allow to enter empty data"() {
         when:
         def response = service.sortNumbers(
                 SortingServiceDataMocks.sortingDataNull.numbers,
                 SortingServiceDataMocks.sortingDataNull.order
         )
         then:
-        response == null
+        response.numbers.size() == 0
     }
 }

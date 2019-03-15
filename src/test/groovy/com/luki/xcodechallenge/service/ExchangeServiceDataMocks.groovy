@@ -1,7 +1,7 @@
 package com.luki.xcodechallenge.service
 
-import com.luki.xcodechallenge.dao.Currency
-import com.luki.xcodechallenge.dao.Rate
+import com.luki.xcodechallenge.dto.Rate
+import com.luki.xcodechallenge.dto.Currency
 
 class ExchangeServiceDataMocks {
     static currencyEUR = new Currency(

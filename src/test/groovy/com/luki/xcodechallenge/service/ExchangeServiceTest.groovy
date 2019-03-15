@@ -1,8 +1,7 @@
 package com.luki.xcodechallenge.service
 
 import com.luki.xcodechallenge.client.NbpClient
-import com.luki.xcodechallenge.dao.Currency
-import org.mockito.Mock
+import com.luki.xcodechallenge.dto.Currency
 import spock.lang.Specification
 
 class ExchangeServiceTest extends Specification {

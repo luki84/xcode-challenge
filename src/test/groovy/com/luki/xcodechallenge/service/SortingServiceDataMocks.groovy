@@ -1,20 +1,20 @@
 package com.luki.xcodechallenge.service
 
-import com.luki.xcodechallenge.dao.Numbers
+import com.luki.xcodechallenge.dto.NumbersQuery
 
 class SortingServiceDataMocks {
-    static sortingDataASC = new Numbers(
+    static sortingDataASC = new NumbersQuery(
             numbers: [1, 5, 3, 9, 7],
-            order: Numbers.Order.ASC
+            order: NumbersQuery.Order.ASC
     )
 
-    static sortingDataDESC = new Numbers(
+    static sortingDataDESC = new NumbersQuery(
             numbers: [1, 5, 3, 9, 7],
-            order: Numbers.Order.DESC
+            order: NumbersQuery.Order.DESC
     )
 
-    static sortingDataNull = new Numbers(
+    static sortingDataNull = new NumbersQuery(
             numbers: null,
-            order: Numbers.Order.DESC
+            order: NumbersQuery.Order.DESC
     )
 }
