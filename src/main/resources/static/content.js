@@ -1,73 +1,118 @@
 $.widget("xCode.numbersSortingForm", {
     _create: function() {
+        const self = this;
         this.mainContainer = $('<div>').addClass('container');
         this.paragraph = $('<p>').addClass('pt-xl-5 pl-xl-4');
         this.jumbotron = $('<div>').addClass('jumbotron');
         this.numbersInputForm = $('<form>');
 
-        this.numbersGroup = $('<div>').addClass('form-group');
-        this.numbersLabel = $('<label>')
-            .text('Liczby do posortowania: ')
-            .attr('for', 'numbersToBeSorted');
-        this.numbersInput = $('<input>')
-            .addClass('form-control')
-            .attr('id', 'numbersToBeSorted')
-            .attr('name', 'numbersQuery')
-            .attr('aria-describedby', 'numbersHelp')
-            .attr('placeholder', 'np. 1, 3, 5');
-        this.numbersInputDescription = $('<small>')
-            .addClass('form-text text-muted')
-            .attr('id', 'numbersHelp')
-            .text('wprowadź liczby oddzielone przecinkami');
-
-        this.orderGroup = $('<div>').addClass('form-group');
-        this.orderLabel = $('<label>')
-            .text('Kolejność: ');
-        this.rog = $('<div>').radioOptionGroup({
+        this.numbersGroup = $('<div>').numbersGroup({
+            label: 'Liczby do posortowania: ',
+            placeholder: 'np. 1, 3, 5',
+            description: 'wprowadź liczby oddzielone przecinkami'
+        });
+        this.orderRadiosGroup = $('<div>').radioOptionGroup({
+            label: 'Kolejność:',
             radioProps: [{
-                    id: 'ascOrder',
-                    value: 'ASC',
-                    checked: true,
-                    label: 'rosnąca'
-                },
-                {
-                    id: 'descOrder',
-                    value: 'DESC',
-                    checked: false,
-                    label: 'malejąca'
-                }]
+                id: 'ascOrder',
+                value: 'ASC',
+                checked: true,
+                label: 'rosnąca'
+            }, {
+                id: 'descOrder',
+                value: 'DESC',
+                label: 'malejąca'
+            }]
         });
 
         this.submitBtn = $('<button>')
-                .addClass('btn btn-primary')
-                .text('Sortuj')
-                .attr('type', 'submit');
+            .addClass('btn btn-primary')
+            .text('Sortuj')
+            // .attr('type', 'submit')
+            .click(() => {
+                const userNumbers = self.numbersGroup.numbersGroup('getUserInput');
+                const numbersToBeSorted = userNumbers.split(",")
+                    .map(value => Number(value.trim()));
 
-        this.numbersGroup.append(this.numbersLabel, this.numbersInput, this.numbersInputDescription);
-        this.orderGroup.append(this.orderLabel,  this.rog);
-        this.numbersInputForm.append(this.numbersGroup, this.orderGroup, this.submitBtn);
+                const data = {
+                    numbers: numbersToBeSorted,
+                    order: self.orderRadiosGroup.radioOptionGroup('getCheckedValue')
+                };
+                doPost("http://" + window.location.host + '/numbersQuery/sort-command', data, (data) => {
+                    alert(data);
+                    // $('#sortingResult').css('display', 'block');
+                    // $('#sortingResultNumbers').text(data.numbersQuery.map(number => ' ' + number));
+                }, () => {
+                    alert('wrong')
+                })
+
+            });
+
+        this.numbersInputForm.append(this.numbersGroup, this.orderRadiosGroup, this.submitBtn);
         this.jumbotron.append(this.numbersInputForm);
         this.mainContainer.append(this.paragraph, this.jumbotron);
         $(this.element).append(this.mainContainer);
     }
 });
 
+$.widget("xCode.numbersGroup", {
+    options: {
+        label: null,
+        placeholder: null,
+        description: null
+    },
+
+    _create: function() {
+        this.element.addClass('form-group');
+        this.label = $('<label>')
+            .text(this.options.label)
+            .attr('for', 'numbersToBeSorted');
+        this.numbersInput = $('<input>')
+            .addClass('form-control')
+            .attr('id', 'numbersToBeSorted')
+            .attr('name', 'numbersQuery')
+            .attr('aria-describedby', 'numbersHelp')
+            .attr('placeholder', this.options.placeholder);
+        this.numbersInputDescription = $('<small>')
+            .addClass('form-text text-muted')
+            .attr('id', 'numbersHelp')
+            .text(this.options.description);
+        this.element.append(this.label, this.numbersInput, this.numbersInputDescription);
+    },
+
+    getUserInput: function () {
+        return this.numbersInput.val();
+    }
+});
+
 $.widget("xCode.radioOptionGroup", {
     options: {
+        label: null,
         radioProps: []
     },
 
     _create: function() {
+        let self = this;
+        let checkedValue = null;
+        this.element.addClass('form-group');
+        if (this.options.label) {
+            this.label = $('<label>').text(this.options.label);
+            this.element.append(this.label);
+        }
         for (let prop of this.options.radioProps){
+            if (prop.checked == null) checkedValue = prop.value;
             const radio = $('<div>').radioOption({
                 id: prop.id,
                 value: prop.value,
-                checked: prop.checked,
+                checked: (prop.checked == null) ? false : prop.checked,
                 label: prop.label
-            });
-
+            }).click(() => self.checkedValue = prop.value);
             $(this.element).append(radio);
         }
+    },
+
+    getCheckedValue: function () {
+        return this.checkedValue;
     }
 });
 
@@ -81,22 +126,20 @@ $.widget("xCode.radioOption", {
 
     _create: function() {
         this.option = $('<div>').addClass('form-check form-check-inline');
-
         this.optionInput = $('<input>')
             .addClass('form-check-input')
             .attr('type', 'radio')
             .attr('name', 'order')
             .attr('id', this.options.id)
             .attr('value', this.options.value);
-        if (this.options.checked) this.option.attr('checked');
-
+        if (this.options.checked) this.optionInput.attr('checked', true);
         this.optionLabel = $('<label>')
             .addClass('form-check-label')
             .attr('for', this.options.id)
             .text(this.options.label);
-
         this.option.append(this.optionInput, this.optionLabel);
-        $(this.element).append(this.option);
+        $(this.element)
+            .append(this.option);
     }
 });
 
