@@ -1,6 +1,6 @@
 package com.luki.xcodechallenge.controller
 
-import com.luki.xcodechallenge.dao.NumbersResponseDto
+import com.luki.xcodechallenge.dto.NumbersResponseDto
 import com.luki.xcodechallenge.service.SortingService
 import org.spockframework.spring.SpringBean
 import org.springframework.beans.factory.annotation.Autowired
@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebM
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import spock.lang.Specification
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
@@ -16,22 +17,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 
-@SpringBootTest(classes = [SortingController])
+@SpringBootTest(classes = SortingController)
 @AutoConfigureMockMvc
 @AutoConfigureWebMvc
 class SortingControllerTest extends Specification {
 
-    @Autowired
-    protected MockMvc mvc
-
     @SpringBean
-    SortingService sortingService = Stub()
+    private SortingService service = Stub()
 
+    @Autowired
+    protected MockMvc mvc = MockMvcBuilders
+            .standaloneSetup(new SortingController(service))
+            .build()
 
-    def "when get is performed then the response has status 200"() {
-//        given:
-//        sortingService.sortNumbers(_,_) >> new NumbersResponseDto(numbers: [10, 9, 7, 5, 3, 1, 1, -5] as List)
-
+    def "POST on /numbers/sort-command with array of Integer numbers"() {
+        given:
+        service.sortNumbers(*_) >> new NumbersResponseDto([10, 9, 7, 5, 3, 1, 1, -5] as List)
         def requestBody = """
         {
             "numbers": ["1", "5", "3", "9", "7", "10", "1", "-5"],
@@ -47,19 +48,27 @@ class SortingControllerTest extends Specification {
 
         then:
         respond.andExpect(status().isOk())
-        respond.andExpect(content().json("""
+        respond.andExpect(content().json("""{"numbers":[10,9,7,5,3,1,1,-5]}"""));
+    }
+
+    def "POST on /numbers/sort-command with array of Floating point numbers"() {
+        given:
+        service.sortNumbers(*_) >> new NumbersResponseDto([10.1, 9.1, 7.1, 5.1, 3.1, 1.1, 1.1, -5.1] as List)
+        def requestBody = """
         {
-            "numbers": [
-                10,
-                9,
-                7,
-                5,
-                3,
-                1,
-                1,
-                -5
-            ]
+            "numbers": ["1.1", "5.1", "3.1", "9.1", "7.1", "10.1", "1.1", "-5.1"],
+            "order": "DESC"
         }
-        """));
+        """
+
+        when:
+        def respond = mvc.perform(post("/numbers/sort-command")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+        )
+
+        then:
+        respond.andExpect(status().isOk())
+        respond.andExpect(content().json("""{"numbers":[10.1,9.1,7.1,5.1,3.1,1.1,1.1,-5.1]}"""));
     }
 }
