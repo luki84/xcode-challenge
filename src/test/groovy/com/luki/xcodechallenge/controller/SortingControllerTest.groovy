@@ -39,13 +39,11 @@ class SortingControllerTest extends Specification {
             "order": "DESC"
         }
         """
-
         when:
         def respond = mvc.perform(post("/numbers/sort-command")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
         )
-
         then:
         respond.andExpect(status().isOk())
         respond.andExpect(content().json("""{"numbers":[10,9,7,5,3,1,1,-5]}"""));
@@ -60,13 +58,11 @@ class SortingControllerTest extends Specification {
             "order": "DESC"
         }
         """
-
         when:
         def respond = mvc.perform(post("/numbers/sort-command")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
         )
-
         then:
         respond.andExpect(status().isOk())
         respond.andExpect(content().json("""{"numbers":[10.1,9.1,7.1,5.1,3.1,1.1,1.1,-5.1]}"""));
@@ -80,13 +76,11 @@ class SortingControllerTest extends Specification {
             "order": "DESC"
         }
         """
-
         when:
         def respond = mvc.perform(post("/numbers/sort-command")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
         )
-
         then:
         respond.andExpect(status().isBadRequest())
     }
@@ -99,13 +93,11 @@ class SortingControllerTest extends Specification {
             "order": "DESC"
         }
         """
-
         when:
         def respond = mvc.perform(post("/numbers/sort-command")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
         )
-
         then:
         respond.andExpect(status().isBadRequest())
     }
@@ -118,13 +110,11 @@ class SortingControllerTest extends Specification {
             "order": "ASCENDING"
         }
         """
-
         when:
         def respond = mvc.perform(post("/numbers/sort-command")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
         )
-
         then:
         respond.andExpect(status().isBadRequest())
     }

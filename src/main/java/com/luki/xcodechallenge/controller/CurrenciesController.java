@@ -12,8 +12,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/currencies")
 public class CurrenciesController {
 
+    final ExchangeService exchangeService;
+
     @Autowired
-    ExchangeService exchangeService;
+    public CurrenciesController(ExchangeService exchangeService) {
+        this.exchangeService = exchangeService;
+    }
 
     @PostMapping("/get-current-currency-value-command")
     public ResponseEntity<CurrencyResponseDto> getMid(@RequestBody CurrencyQuery currencyQuery) {
