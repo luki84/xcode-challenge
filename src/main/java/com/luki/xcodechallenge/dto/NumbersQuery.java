@@ -14,8 +14,9 @@ import java.util.List;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NumbersQuery {
+    @NotNull (message = "Numbers cannot be empty.")
     List<? extends Number> numbers;
-    @NotNull
+    @NotNull (message = "Order cannot be empty. It must have one of two values: 'ASC' or 'DESC'")
     Order order;
 
     public enum Order {
@@ -24,9 +25,9 @@ public class NumbersQuery {
 
     @AssertTrue
     public boolean isValid() {
-        if(numbers == null) return true;
-        else if (numbers.size() >= 0) return true;
-        else return false;
+        if(numbers == null) return false;
+        else if (numbers.size() == 0) return false;
+        else return !numbers.contains(null);
     }
 
 }

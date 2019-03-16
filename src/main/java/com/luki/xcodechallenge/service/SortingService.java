@@ -5,7 +5,6 @@ import com.luki.xcodechallenge.dto.NumbersResponseDto;
 import com.luki.xcodechallenge.exception.BadSortingData;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,8 +13,6 @@ import java.util.stream.Collectors;
 public class SortingService {
 
     public NumbersResponseDto sortNumbers (List<? extends Number> numbers, NumbersQuery.Order order) {
-        if (numbers == null) return new NumbersResponseDto(Collections.emptyList());
-
         int multiplier = (order == NumbersQuery.Order.DESC) ? -1 : 1;
         List<? extends Number> sortedNumbers = numbers.stream()
                 .sorted((number1, number2) -> {
@@ -24,7 +21,6 @@ public class SortingService {
                     return multiplier * (doubleValue1).compareTo(doubleValue2);
                 })
                 .collect(Collectors.toList());
-
         return new NumbersResponseDto(sortedNumbers);
     }
 

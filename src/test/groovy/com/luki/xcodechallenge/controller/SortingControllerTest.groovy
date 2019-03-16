@@ -30,7 +30,7 @@ class SortingControllerTest extends Specification {
             .standaloneSetup(new SortingController(service))
             .build()
 
-    def "POST on /numbers/sort-command with array of Integer numbers"() {
+    def "POST on /numbers/sort-command (Integers)"() {
         given:
         service.sortNumbers(*_) >> new NumbersResponseDto([10, 9, 7, 5, 3, 1, 1, -5] as List)
         def requestBody = """
@@ -51,7 +51,7 @@ class SortingControllerTest extends Specification {
         respond.andExpect(content().json("""{"numbers":[10,9,7,5,3,1,1,-5]}"""));
     }
 
-    def "POST on /numbers/sort-command with array of Floating point numbers"() {
+    def "POST on /numbers/sort-command (Floating-piont)"() {
         given:
         service.sortNumbers(*_) >> new NumbersResponseDto([10.1, 9.1, 7.1, 5.1, 3.1, 1.1, 1.1, -5.1] as List)
         def requestBody = """
@@ -70,5 +70,62 @@ class SortingControllerTest extends Specification {
         then:
         respond.andExpect(status().isOk())
         respond.andExpect(content().json("""{"numbers":[10.1,9.1,7.1,5.1,3.1,1.1,1.1,-5.1]}"""));
+    }
+
+    def "POST on /numbers/sort-command (with incorrect numbers)"() {
+        given:
+        def requestBody = """
+        {
+            "numbers": ["a", "5", "3"],
+            "order": "DESC"
+        }
+        """
+
+        when:
+        def respond = mvc.perform(post("/numbers/sort-command")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+        )
+
+        then:
+        respond.andExpect(status().isBadRequest())
+    }
+
+    def "POST on /numbers/sort-command (without numbers)"() {
+        given:
+        def requestBody = """
+        {
+            "numbers": [],
+            "order": "DESC"
+        }
+        """
+
+        when:
+        def respond = mvc.perform(post("/numbers/sort-command")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+        )
+
+        then:
+        respond.andExpect(status().isBadRequest())
+    }
+
+    def "POST on /numbers/sort-command (with order other than 'ASC' / 'DESC')"() {
+        given:
+        def requestBody = """
+        {
+            "numbers": [],
+            "order": "ASCENDING"
+        }
+        """
+
+        when:
+        def respond = mvc.perform(post("/numbers/sort-command")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+        )
+
+        then:
+        respond.andExpect(status().isBadRequest())
     }
 }
